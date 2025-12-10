@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.newsdash.R
+import com.newsdash.data.local.NewsArticleEntity
 import com.newsdash.model.BookmarksViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,60 +50,67 @@ fun UserBookmarksScreen(
                 .padding(paddingValues)
         ) {
             if (bookmarks.isEmpty()) {
-                // Zero state for empty bookmarks
                 ZeroBookmarksState()
             } else {
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(bookmarks.size) { i ->
                         val article = bookmarks[i]
-                        OutlinedCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                                .clickable { onOpen(article.url) },
-                            colors = CardDefaults.outlinedCardColors(
-                                containerColor = Color(0xFFc4edb9)
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp)
-                            ) {
-                                // Display image if available
-                                article.imageUrl?.let { imageUrl ->
-                                    AsyncImage(
-                                        model = imageUrl,
-                                        contentDescription = article.title,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(200.dp)
-                                            .clip(RoundedCornerShape(8.dp)),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                }
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = article.title,
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .padding(end = 8.dp),
-                                        maxLines = 2
-                                    )
-                                    Button(onClick = { viewModel.removeBookmark(article.url) }) {
-                                        Text(stringResource(R.string.remove))
-                                    }
-                                }
-                            }
-                        }
+                        BookmarkedArticle(onOpen, article, viewModel)
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BookmarkedArticle(
+    onOpen: (String) -> Unit,
+    article: NewsArticleEntity,
+    viewModel: BookmarksViewModel
+) {
+    OutlinedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { onOpen(article.url) },
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = Color(0xFFa8a08a)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            article.imageUrl?.let { imageUrl ->
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = article.title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = article.title,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                    maxLines = 2
+                )
+                Button(onClick = { viewModel.removeBookmark(article.url) }) {
+                    Text(stringResource(R.string.remove))
                 }
             }
         }
