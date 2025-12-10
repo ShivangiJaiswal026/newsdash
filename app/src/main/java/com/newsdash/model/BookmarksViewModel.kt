@@ -8,13 +8,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class BookmarksViewModel
-@Inject constructor(repository: NewsRepository) : ViewModel() {
+@Inject constructor(private val repository: NewsRepository) : ViewModel() {
 
     val bookmarks: StateFlow<List<NewsArticleEntity>> =
         repository.getBookmarks()
             .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    fun removeBookmark(url: String) = viewModelScope.launch {
+        repository.unbookmarkArticle(url)
+    }
 }

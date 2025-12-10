@@ -3,4 +3,8 @@
     <string name="bookmarks">Bookmarks</string>
     <string name="article">Article</string>
     <string name="back">Back</string>
+    <string name="remove">Remove</string>
+    <string name="loading">Loading...</string>
+    <string name="unbookmark">Unbookmark</string>
+    <string name="bookmark">Bookmark</string>
 </resources>
