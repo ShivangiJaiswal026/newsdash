@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.newsdash.R
 import com.newsdash.data.local.NewsArticleEntity
 import com.newsdash.model.NewsFeedViewModel
+import com.newsdash.ui.components.Loader
 import com.newsdash.util.ApiResponse
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,7 +69,7 @@ fun UserFeedScreen(
                 .padding(paddingValues)
         ) {
             when (state) {
-                ApiResponse.Loading -> CircularProgressIndicator()
+                ApiResponse.Loading -> Loader()
                 is ApiResponse.Error -> Text("Error: ${(state as ApiResponse.Error).message}")
                 is ApiResponse.Success -> {
                     val articles = (state as ApiResponse.Success).data
