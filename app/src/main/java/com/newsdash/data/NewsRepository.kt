@@ -5,6 +5,7 @@ import com.newsdash.data.local.NewsArticleEntity
 import com.newsdash.data.remote.NewsService
 import com.newsdash.util.ApiResponse
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,10 +20,27 @@ constructor(private val newsService: NewsService, private val db: AppDatabase) {
         emit(ApiResponse.Loading)
         try {
             val response = newsService.getHeadlineArticles()
-            val articles = response.articles.map { it.toEntity() }
+            val newArticles = response.articles.map { it.toEntity() }
+            //We need to preserves bookmark status when refreshing articles hence before clearing,
+            // map existing articles and their bookmark status to new articles before inserting
+            val existingArticles = db.newsArticleDao().getAllArticles().first()
+            val bookmarkStatusMap = existingArticles.associateBy { it.url }
+
+            //Ensuring bookmarked articles remain bookmarked after refresh
+            val articlesToInsert = newArticles.map { newArticle ->
+                val existing = bookmarkStatusMap[newArticle.url]
+                if (existing != null && existing.isBookmarked) {
+                    newArticle.copy(isBookmarked = true)
+                } else {
+                    newArticle
+                }
+            }
+            
             db.newsArticleDao().clearAll()
-            db.newsArticleDao().insertAll(articles)
-            emit(ApiResponse.Success(articles))
+            db.newsArticleDao().insertAll(articlesToInsert)
+            
+            val articlesWithBookmarks = db.newsArticleDao().getAllArticles().first()
+            emit(ApiResponse.Success(articlesWithBookmarks))
         } catch (e: Exception) {
             emit(ApiResponse.Error(e.localizedMessage))
         }
@@ -38,5 +56,8 @@ constructor(private val newsService: NewsService, private val db: AppDatabase) {
 
     // Get bookmarks from DB
     fun getBookmarks(): Flow<List<NewsArticleEntity>> = db.newsArticleDao().getBookmarks()
+
+    // Get all articles
+    fun getAllArticles(): Flow<List<NewsArticleEntity>> = db.newsArticleDao().getAllArticles()
 
 }

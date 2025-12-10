@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,11 +29,23 @@ class NewsFeedViewModel @Inject constructor(private val repository: NewsReposito
         }
     }
 
+    private fun refreshArticlesFromDatabase() {
+        viewModelScope.launch {
+            val currentState = _articles.value
+            if (currentState is ApiResponse.Success) {
+                val updatedArticles = repository.getAllArticles().first()
+                _articles.value = ApiResponse.Success(updatedArticles)
+            }
+        }
+    }
+
     fun bookmarkArticle(article: NewsArticleEntity) = viewModelScope.launch {
         repository.bookmarkArticle(article)
+        refreshArticlesFromDatabase()
     }
 
     fun unbookmarkArticle(url: String) = viewModelScope.launch {
         repository.unbookmarkArticle(url)
+        refreshArticlesFromDatabase()
     }
 }
