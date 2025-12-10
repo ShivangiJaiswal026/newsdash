@@ -3,6 +3,7 @@ package com.newsdash.di
 import com.newsdash.data.remote.NewsService
 import com.newsdash.util.AppConstants.Companion.BASE_URL
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,10 +25,16 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(client: OkHttpClient) = Retrofit.Builder()
+    fun provideMoshi(): Moshi = Moshi.Builder()
+        .addLast(KotlinJsonAdapterFactory())
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(client: OkHttpClient, moshi: Moshi) = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .client(client)
-        .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().build()))
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
         .build()
 
     @Provides

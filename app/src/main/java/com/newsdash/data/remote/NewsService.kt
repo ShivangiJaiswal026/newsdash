@@ -5,6 +5,7 @@ import com.newsdash.util.AppConstants
 import com.newsdash.util.AppConstants.Companion.EN
 import com.newsdash.util.AppConstants.Companion.GENERAL
 import com.newsdash.util.AppConstants.Companion.IN
+import com.squareup.moshi.JsonClass
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -17,12 +18,27 @@ interface NewsService {
         @Query("country") country: String = IN,
         @Query("max") max: Int = 10,
         @Query("apikey") apiKey: String = AppConstants.API_KEY
-    ): ApiResponse
+    ): HeadlineApiResponse
 }
 
+@JsonClass(generateAdapter = true)
+data class HeadlineApiResponse(
+    val information: Information?,
+    val totalArticles: Int?,
+    val articles: List<ArticleDto>
+)
 
-data class ApiResponse(val totalArticles: Int?, val articles: List<ArticleDto>)
+@JsonClass(generateAdapter = true)
+data class Information(
+    val realTimeArticles: RealTimeArticles?
+)
 
+@JsonClass(generateAdapter = true)
+data class RealTimeArticles(
+    val message: String?
+)
+
+@JsonClass(generateAdapter = true)
 data class ArticleDto(
     val title: String?,
     val description: String?,
