@@ -1,7 +1,7 @@
 package com.newsdash.util
 
-sealed class ApiResponse {
-    data class Success(val data: Any?) : ApiResponse()
-    data class Error(val message: String? = null) : ApiResponse()
-    object Loading : ApiResponse()
+sealed class ApiResponse<out T> {
+    data class Success<T>(val data: T) : ApiResponse<T>()
+    data class Error(val message: String? = null) : ApiResponse<Nothing>()
+    object Loading : ApiResponse<Nothing>()
 }

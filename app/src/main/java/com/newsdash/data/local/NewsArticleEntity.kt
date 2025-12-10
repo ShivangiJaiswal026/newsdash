@@ -10,6 +10,5 @@ data class NewsArticleEntity(
     val description: String?,
     val imageUrl: String?,
     val publishedAt: String,
-    val source: String?,
     val isBookmarked: Boolean = false
 )
