@@ -1,28 +1,29 @@
 package com.newsdash.ui.screens
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import com.newsdash.util.ScreenState
 
 @Composable
 fun HomeScreen() {
-    var current by remember { mutableStateOf<ScreenState>(ScreenState.Feed) }
+    val currentScreen =
+        remember { mutableStateOf<ScreenState>(ScreenState.Feed) }
 
-    when (val s = current) {
+    when (val screen = currentScreen.value) {
         ScreenState.Feed -> UserFeedScreen(
-            onArticleClick = { url -> current = ScreenState.ItemDetail(url) },
-            onBookmarksClick = { current = ScreenState.UserBookmarks })
+            onArticleClick = { url -> currentScreen.value = ScreenState.ItemDetail(url) },
+            onBookmarksClick = { currentScreen.value = ScreenState.UserBookmarks }
+        )
 
         is ScreenState.ItemDetail -> ItemDetailScreen(
-            url = s.url,
-            onBack = { current = ScreenState.Feed })
+            url = screen.url,
+            onBack = { currentScreen.value = ScreenState.Feed }
+        )
 
         ScreenState.UserBookmarks -> UserBookmarksScreen(
-            onBack = { current = ScreenState.Feed },
-            onOpen = { url -> current = ScreenState.ItemDetail(url) }
+            onBack = { currentScreen.value = ScreenState.Feed },
+            onOpen = { url -> currentScreen.value = ScreenState.ItemDetail(url) }
         )
     }
 }
